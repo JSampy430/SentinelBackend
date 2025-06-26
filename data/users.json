@@ -1,0 +1,23 @@
+{
+  "test7@example.com": {
+    "password": "1234"
+  },
+  "test8@example.com": {
+    "password": "$2b$12$K33gFmZzWgTyYhCdWPFK7.bLSKD/ne9o6NUcl4q737vObQxF3ct6W"
+  },
+  "test9@example.com": {
+    "password": "$2b$12$GYKMLQbLR3n0xilCCCZNZ.DWYj3iem97GDvXHwj9.oVESBbyrRrM2"
+  },
+  "test10@example.com": {
+    "password": "$2b$12$GKYuYGWLarJilyi5EZVmQ.T7DBbZS26NtLvK1Zuc4N2eynSOANUDK"
+  },
+  "josampy@hotmail.com": {
+    "password": "$2b$12$f7PM4juDj45klD1P/luFLO2y/9fWeXZxI9tDuu1If2xjSN2COFQwK"
+  },
+  "mistaking_stone@hotmail.ca": {
+    "password": "$2b$12$4myhvDZ3N98s6FgHwVzaZOWGiOCCcD0d2BfGqsDJ8UAfSH9bUNTsq"
+  },
+  "test123@hotmail.com": {
+    "password": "$2b$12$SRRuEJbWExzdpuk1SCAPmOpJZIE.Xaq9xNvztzsyWc.OWwDY42IPq"
+  }
+}
