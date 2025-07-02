@@ -73,8 +73,3 @@ def login():
     except Exception as e:
         print("[ERROR] During login:", str(e))
         return jsonify({"error": "Server error during login"}), 500
-
-# ---------- App Start ----------
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(debug=False, host="0.0.0.0", port=port)
