@@ -7,12 +7,11 @@ import bcrypt
 app = Flask(__name__)
 CORS(app)
 
-# Path for persistent disk (Render will mount to /data)
+# ---------- Config ----------
 DATA_DIR = os.environ.get("DATA_DIR", "./data")
 USERS_FILE = os.path.join(DATA_DIR, "users.json")
 
 # ---------- Utility Functions ----------
-
 def load_users():
     if not os.path.exists(USERS_FILE):
         return {}
@@ -29,7 +28,6 @@ def save_users(users):
     print(f"[SAVE] Users saved to: {USERS_FILE}")
 
 # ---------- Routes ----------
-
 @app.route("/signup", methods=["POST"])
 def signup():
     try:
@@ -76,7 +74,7 @@ def login():
         print("[ERROR] During login:", str(e))
         return jsonify({"error": "Server error during login"}), 500
 
-# ---------- Start App ----------
-
+# ---------- App Start ----------
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=False, host="0.0.0.0", port=port)
