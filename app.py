@@ -5,7 +5,8 @@ import os
 import bcrypt
 
 app = Flask(__name__)
-CORS(app, origins="*")  # Allow all origins temporarily
+CORS(app, origins="*", supports_credentials=True)
+
 
 
 # ---------- Config ----------
