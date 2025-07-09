@@ -5,7 +5,7 @@ import os
 import bcrypt
 
 app = Flask(__name__)
-CORS(app, origins="*", supports_credentials=True)
+CORS(app)
 
 # ---------- Config ----------
 DATA_DIR = os.environ.get("DATA_DIR", "./data")
