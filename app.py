@@ -4,7 +4,6 @@ import json
 import os
 import bcrypt
 
-# ---------- Init ----------
 app = Flask(__name__)
 CORS(app, origins="*", supports_credentials=True)
 
@@ -28,60 +27,59 @@ def save_users(users):
         json.dump(users, file, indent=2)
     print(f"[SAVE] Users saved to: {USERS_FILE}")
 
-# ---------- Test Route ----------
+# ---------- Routes ----------
 @app.route("/", methods=["GET"])
-def home():
-    return jsonify({"message": "Sentinel backend is live."}), 200
+def index():
+    return jsonify({"message": "Sentinel backend is live."})
 
-# ---------- Signup ----------
 @app.route("/signup", methods=["POST"])
 def signup():
     try:
         data = request.get_json(force=True)
-        print("[DEBUG] Data received for signup:", data)
+        print("[DEBUG] Signup data received:", data)
     except Exception as e:
-        print("[ERROR] Failed to parse signup JSON:", e)
-        return jsonify({"error": "Invalid JSON"}), 400
+        print("[ERROR] JSON parsing failed:", str(e))
+        return jsonify({"error": "Invalid JSON format."}), 400
 
-    email = data.get("email")
-    password = data.get("password")
+    email = data.get("email", "").strip()
+    password = data.get("password", "").strip()
 
     if not email or not password:
+        print("[ERROR] Missing email or password.")
         return jsonify({"error": "Email and password are required."}), 400
 
     users = load_users()
     if email in users:
+        print(f"[ERROR] Duplicate signup attempt for email: {email}")
         return jsonify({"error": "Email already registered."}), 400
 
-    hashed_pw = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-    users[email] = {"password": hashed_pw}
-    save_users(users)
+    try:
+        hashed_pw = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        users[email] = {"password": hashed_pw}
+        save_users(users)
+        print(f"[SIGNUP] New user registered: {email}")
+        return jsonify({"message": "Signup successful."}), 200
+    except Exception as e:
+        print("[ERROR] Failed to hash password or save user:", str(e))
+        return jsonify({"error": "Server error during signup."}), 500
 
-    print(f"[SIGNUP] New user registered: {email}")
-    return jsonify({"message": "Signup successful."}), 200
 
-# ---------- Login ----------
 @app.route("/login", methods=["POST"])
 def login():
     try:
         data = request.get_json(force=True)
-        print("[DEBUG] Data received for login:", data)
+        email = data.get("email")
+        password = data.get("password")
+
+        users = load_users()
+        user = users.get(email)
+
+        if user and bcrypt.checkpw(password.encode("utf-8"), user["password"].encode("utf-8")):
+            print(f"[LOGIN] Success for user: {email}")
+            return jsonify({"message": "Login successful."}), 200
+        else:
+            print(f"[LOGIN] Failed login for: {email}")
+            return jsonify({"error": "Invalid email or password."}), 401
     except Exception as e:
-        print("[ERROR] Failed to parse login JSON:", e)
-        return jsonify({"error": "Invalid JSON"}), 400
-
-    email = data.get("email")
-    password = data.get("password")
-
-    if not email or not password:
-        return jsonify({"error": "Email and password are required."}), 400
-
-    users = load_users()
-    user = users.get(email)
-
-    if user and bcrypt.checkpw(password.encode("utf-8"), user["password"].encode("utf-8")):
-        print(f"[LOGIN] Success for user: {email}")
-        return jsonify({"message": "Login successful."}), 200
-    else:
-        print(f"[LOGIN] Failed login for: {email}")
-        return jsonify({"error": "Invalid email or password."}), 401
+        print("[ERROR] During login:", str(e))
+        return jsonify({"error": "Server error during login"}), 500
