@@ -1,13 +1,11 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
 import json
 import os
 import bcrypt
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:3000"])
-
-
+CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
 
 # ---------- Config ----------
 DATA_DIR = os.environ.get("DATA_DIR", "./data")
@@ -29,13 +27,25 @@ def save_users(users):
         json.dump(users, file, indent=2)
     print(f"[SAVE] Users saved to: {USERS_FILE}")
 
+# ---------- CORS Preflight Handler ----------
+@app.after_request
+def apply_cors(response):
+    response.headers["Access-Control-Allow-Origin"] = "http://localhost:3000"
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+    return response
+
 # ---------- Routes ----------
 @app.route("/", methods=["GET"])
 def index():
     return jsonify({"message": "Sentinel backend is live."})
 
-@app.route("/signup", methods=["POST"])
+@app.route("/signup", methods=["OPTIONS", "POST"])
 def signup():
+    if request.method == "OPTIONS":
+        return make_response(jsonify({"message": "CORS preflight OK"}), 200)
+
     try:
         data = request.get_json(force=True)
         print("[DEBUG] Signup data received:", data)
@@ -64,7 +74,6 @@ def signup():
     except Exception as e:
         print("[ERROR] Failed to hash password or save user:", str(e))
         return jsonify({"error": "Server error during signup."}), 500
-
 
 @app.route("/login", methods=["POST"])
 def login():
